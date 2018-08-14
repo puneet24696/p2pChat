@@ -1,11 +1,13 @@
 package main
 
 import (
-    //"log"
+    "log"
+	"bufio";"os"
     "fmt"
     "net/http"
     "io/ioutil"
     "strings"
+	"net"
     "crypto/tls"
 )
 
@@ -29,8 +31,11 @@ func get_db(){
     return
 }
 
-func to_write(conn *net.Conn, a string){
+func to_write(conn net.Conn){
     for {
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Println(conn,"->")
+		a,_ := reader.ReadString('n')
         w_mess, err := conn.Write([]byte(a))
         if err!= nil{
             fmt.Println(w_mess,err)
@@ -41,31 +46,38 @@ func to_write(conn *net.Conn, a string){
     return
 }
 
-func to_read(conn *net.Conn){
+func to_read(conn net.Conn){
     for{
         message := make([]byte, 100)
-        text, err = conn.Read(message)
+		text, err := conn.Read(message)
         if err != nil {
             fmt.Println(text, err)
             conn.Close()
             return
+		}
     }
     return
 }
 
 
-func client_init_chat(addr string,s string){
-    config:= &tls.Config{}
-    conn, err := tls.Dial("tcp", addr string, config *Config)
+func client_init_chat(addr,s string){
+    config:= &tls.Config{
+	}
+	conn, err := tls.Dial("tcp",addr,config)
     if err != nil {
         log.Println(err)
         return
     }
+	go to_read(conn)
+	go to_write(conn)
 }
 
 
 func server_init(){}
+
+/*
 func main(){
     get_db()
     //fmt.Printf("Online Clients: %v , %T \n",CLIENTS,CLIENTS)
 }
+*/
